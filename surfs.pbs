@@ -1,0 +1,5 @@
+#!/bin/bash
+#PBS -l walltime=72:00:00
+#PBS -l nodes=1:ppn=1:compute
+#PBS -l mem=50gb
+/home/dobreschkow/ProCorr/procorr /mnt/su3ctm/dobreschkow/SURFS/L210_N1024-Hydro/snapshot_199.sorted -output px -ncells 512 -interpolation n2 -input 5 > /home/dobreschkow/ProCorr/surfs.out 2> /home/dobreschkow/ProCorr/surfs.err
