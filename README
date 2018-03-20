@@ -1,27 +1,24 @@
 OVERVIEW
-====================================================================================================================
+==========================================================================================================
 
-ProCorr is a Fortran code to compute several correlation functions of periodic 3D density fields in a cubic box.
-The code can evaluate the powerspectrum, the 2-point autocorrelation, the bispectrum, as well as the so-called
-line correlation function, a special three-point phase correlation function, introduced in
-Obreschkow et al. (ApJ 762, 2013) to measure cosmic filamentarity. The line correlation calculated here uses the
-modified mode truncation |K|,|Q|,|K+Q|<2*pi/r of Wolstenhulme et al. (ApJ 804, 2015) instead of |K|,|Q|<pi/r in
-Eq. (D4c) of Obreschkow et al. (2013).
+ProCorr is a Fortran code to compute several correlation functions of periodic 3D density fields in a
+cubic box. The code can evaluate the powerspectrum, the 2-point autocorrelation, the bispectrum, as well
+as the so-called line correlation function, a special three-point phase correlation function, introduced
+in Obreschkow et al. (ApJ 762, 2013) to measure cosmic filamentarity. The line correlation calculated here
+uses the modified mode truncation |K|,|Q|,|K+Q|<2*pi/r of Wolstenhulme et al. (ApJ 804, 2015) instead of
+|K|,|Q|<pi/r in Eq. (D4c) of Obreschkow et al. (2013).
 
-The code is written in Fortran 90 for the gfortran compiler and has been tested extensively on gfortran versions
-4.4.7 and 5.0.0. It does not require any library, in particular no FFTW. The -O3 -openmp flags are strongly
-recommended to accelerate the computation on multiple cores. The code comes with some optional visualization
-routines for the statistical programming language R, contained in the file Rfunctions.R.
+The code is written in Fortran 90 for the gfortran compiler and has been tested on gfortran versions 4.4.7 and 5.0.0. It does not require any library, in particular no FFTW. The -O3 -openmp flags are strongly recommended to accelerate the computation on multiple cores. The code comes with some optional visualization routines for the statistical programming language R, contained in the file Rfunctions.R.
 
 Copyright Danail Obreschkow (danail.obreschkow@icrar.org), 2013-2018
 
 
 
 VERSION HISTORY
-====================================================================================================================
+==========================================================================================================
 v0.0  09/2012: Original version
-v0.1  06/2014: Modification of the function compute_lic to accommodate the new definition of the line correlation
-               function with |K|,|Q|,|K+Q|<2*pi/r instead of |K|,|Q|<pi/r in Eq. (D4c) of Obreschkow et al. (2013).
+v0.1  06/2014: Change to the new definition of the line correlation function with |K|,|Q|,|K+Q|<2*pi/r
+               instead of |K|,|Q|<pi/r in Eq. (D4c) of Obreschkow et al. (2013).
 v0.2  06/2014: exact computation of 2-point correlation, fixed bug in Edgeworth approximation
 v0.3  07/2014: optimal trilinear interpolation of particles on grid
 v0.4  07/2014: robust interpolation with particle translations and top-hat smoothing
@@ -32,20 +29,22 @@ v1.2  01/2017: fixed screen output when written into file, include -progress opt
 v1.3  02/2017: added input type allowing to read Gadget snapshots split into multiple files
 v1.4  02/2017: added input type to read ascii data
 v1.5  02/2017: new input functions to deal with different formats and multiple files consistently,
-               default interpolation method set to nearest neighbor and argument -interpolation has been added
+               default interpolation method set to nearest neighbor and argument -interpolation has
+               been added
 v1.6  02/2017: bug fixes, added sidelength as an optional parameter
 v1.7  03/2017: added interpolation methods n# to suppress shifting the particles
 v1.8  03/2017: minor bug fixes with output file format
 v1.9  04/2017: corrected smoothing if the number of particles differs from the number of cells
 v1.10 04/2017: added developer version of output 'y' for 3-point correlation on a line
-v1.11 04/2017: small bug fix in the output of line correlation for interpolation type 'n2', improved R-functions
+v1.11 04/2017: small bug fix in the output of line correlation for interpolation type 'n2',
+               improved R-functions
 v1.12 04/2017: small bug fix when reading large particle files
 v1.13 04/2017: added input 5, minor bug fix with -test
 v1.14 20/2018: added arguments -probability and -seed for Poisson subsampling of particles
 
 
 GETTING STARTED: DOWNLOAD, COMPILE AND RUN THE CODE
-====================================================================================================================
+==========================================================================================================
 
 1) Install gfortran (tested for versions 4.7, 4.8 and 5.0).
 2) Download and unzip ProCorr
@@ -54,9 +53,9 @@ GETTING STARTED: DOWNLOAD, COMPILE AND RUN THE CODE
    In case of compiler issues modify the makefile.
 4) Run test code by typing:
    > ./procorr -test
-   The test should end with a summary of the computation speed. On a modern laptop, it should take less than 10s,
-   equivalent to more than 4 billion term evaluations per second.  If running as a local job, it is also nice to
-   track the progress using the optional progress argument:
+   The test should end with a summary of the computation speed. On a modern laptop, it should take less
+   than 10s, equivalent to more than 4 billion term evaluations per second. If running as a local job, it
+   is also nice to track the progress using the optional progress argument:
    > ./procorr -test -progress y
 5) Compute the powerspectrum of the test file 'cdm_redshift0':
    > ./procorr cdm_redshift0 -input 4
@@ -67,26 +66,26 @@ Generally run the code via:
 
 For instance, running
 > ./procorr cdm_redshift0 -input 4 -output pxdl -ncells 100
-converts the particle dat of in the Gadget file 'cdm_redshift0' onto a regular grid of 100^3 cells, stored in
-the binary file cdm_redshift0_d.bin, and then computes the powerspectrum (cdm_redshift0_p.txt), 2-point
+converts the particle dat of in the Gadget file 'cdm_redshift0' onto a regular grid of 100^3 cells, stored
+in the binary file cdm_redshift0_d.bin, and then computes the powerspectrum (cdm_redshift0_p.txt), 2-point
 correlation (cdm_redshift0_x.txt) and line correlation (cdm_redshift0_l.txt).
 
 For particle files, i.e. for input formats other than 1, there can be multiple files with filenames
-filename.0, filename.1, ... In this case, just call procorr with the base-filename (i.e. without the ".#")
+filename.0, filename.1, ... In this case, just call procorr with the base-filename (without the ".#").
 Each individual file must have no more than 2^31-1 = 2147483647, i.e. 1290^3, particles.
 
-Optional: if the programming language R is installed, you can benefit from the many additional routines in the file
-Rfunctions.R. Simply call example() to see an example visualization of the density field and some basic correlation
-functions.
+Optional: if the programming language R is installed, you can benefit from the many additional routines in
+the file Rfunctions.R. Simply call example() to see an example visualization of the density field and some
+basic correlation functions.
 
 
 OPTIONS
-====================================================================================================================
+==========================================================================================================
 
--test: run test code, should result in "TEST SUCCESSFUL" and show the number of iterations performed by the
-        deterministic line correlation algorithm. This algorithm is highly optimized. You should expect about
-        a half to one iteration per clock-tic on each core of your machine. For example, a 2 GHz quadro-core machine
-        should evaluate about 4-8 billion terms per second.
+-test: run test code, should result in "TEST SUCCESSFUL" and show the number of iterations performed by
+        the deterministic line correlation algorithm. This algorithm is highly optimized. You should
+        expect about a half to one iteration per clock-tic on each core of your machine. For example,
+        a 2 GHz quadro-core machine should evaluate about 4-8 billion terms per second.
         
 -version: show version of this code
 
@@ -96,128 +95,139 @@ OPTIONS
         2:  3D particle positions, ordered as x1,y1,z1; x2,y2,z2; ...; xn,yn,zn, where each coordinate is
             specified by a 4-byte real number (=> total file size is 4*3*n bytes)
         3:  same as (2), but using ascii format
-        4:  3D particle positions in the standard Gadget-2 format. A particle species can be selected using
-            the -species argument (see below)
+        4:  3D particle positions in the standard Gadget-2 format. A particle species can be selected
+            using the -species argument (see below)
         5:  3D particle positions in surfsuite format
         m2: same as (2), but includes mass-weights: x1,y1,z1,m1; x2,y2,z2,m2; ...; xn,yn,zn,mn, i.e.
             the file size is 4*4*n bytes
         m3: same as (m2), but using ascii format
         m4: 3D particle positions and masses in Gadget-2 format
-        For particle files, i.e. for input formats other than 1, there can be multiple files with filenames
-        filename.0, filename.1, ... In this case, just call procorr with the base-filename (i.e. without the ".##")
-        Each individual file must have no more than 2^31-1 = 2147483647, i.e. 1290^3, particles.
+        For particle files, i.e. for input formats other than 1, there can be multiple files with
+        filenames "filename.0", "filename.1", ... In this case, just call procorr with the base-filename
+        (i.e. without the ".#") Each individual file must have no more than 2^31-1 = 2147483647, i.e.
+        1290^3, particles.
 
 -species (default 2): species of Gadget SPH particles to be analyized, only used for input=4
 
--ncells (default=512 or number of particles per dimension, whichever is smaller): only used if input=2,3,4,
-       number of cells aside in the regular grid used to discretize the simulation box. Higher values of ncells
-       allow to resolve smaller structures, meaning that real space correlation functions will be computed to
-       smaller values r and powerspectra and bispectra will be computed to larger modes. However, generally it
-       does not make sense to chose ncells larger than the number of SPH particles per dimension, since the SPH
-       simulation cannot reliably resolve scales smaller than the mean interparticle separation.
+-ncells (default=512 or number of particles per dimension, whichever is smaller): only used if
+       input=2,3,4, number of cells aside in the regular grid used to discretize the simulation box.
+       Higher values of ncells allow to resolve smaller structures, meaning that real space correlation
+       functions will be computed to smaller values r and powerspectra and bispectra will be computed to
+       larger modes. However, generally it does not make sense to chose ncells larger than the number of
+       SPH particles per dimension, since the SPH simulation cannot reliably resolve scales smaller than
+       the mean interparticle separation.
        
 -sidelength (default=automatic): side length of cubic simulation box. Mandatory argument for input type 1,
        optional for all other input types
        
 -output (default p): can be any combination of the following four letters:
-	   p: compute powerspectrum p(k) = <d(K)d(K)>_t and <>_t denotes the spatial average over all generalized
-	      rotations of the O(3) group, such that |K|=k, and d=FT(delta). The normalization of p(k) is the same
-	      as in CAMB. p(k) is calculated using an exact deterministic algorithm that uses all Fourier modes.
+	   p: compute powerspectrum p(k) = <d(K)d(K)> where <> denotes the spatial average over all
+	      generalized rotations of the O(3) group, such that |K|=k, and d=FT(delta). The normalization of
+	      p(k) is the same as in CAMB. p(k) is calculated using an exact deterministic algorithm that uses
+	      all Fourier modes.
 	   x: compute 2-point autocorrelation xi2(r), identical to the Fourier transform of p(k).
-	      This correlation is calculated using an exact deterministic algorithm that uses all Fourier modes.
+	      This correlation is calculated using an exact deterministic algorithm that uses all Fourier
+	      modes.
 	   y: compute 3-point autocorrelation xi3(r) for three equidistant points on a line with nearest
-	      neighbor separation r. This function is calculated using a stochastic algorithm that randomly samples
-	      a fraction of the Fourier space. The size of this fraction can be specified by the optional argument
-	      '-accuracy'. Caution: unlike the other output options, this output has not been properly optimized
-	      and tested. It is mainly used by the developers.
-	   b: compute bispectrum b(k,q) = <d(K)d(Q)d(-K-Q)>_t, where |K|=k and |Q|=q; the bispectrum is given for
-	      isoscales triangles (|K|=|Q|) as a function of the leg length |K|=|Q| and the angle between K and Q.
-	      To get, for example, the bispectrum for the case where K, Q, and -K-Q span an equilateral triangle,
-	      select the values with an angle(K,Q) of 120 deg in the output file. The bispectrum is calculated
-	      using a stochastic algorithm that randomly samples a fraction of the Fourier space. The size of this
-	      fraction can be specified by the optional argument '-accuracy'.
-	   l: compute line correlation, defined as
-	      l(r) = (r/L)^(9/2)*sum_KQ j0(|K-Q|r) e(K) e(Q) e(-K-Q), where e=FT(delta)/|F(delta)| and where
-	      the sum_KQ goes over all vectors K and Q in the discretized Fourier space, which satify
-	      |K|,|Q|,|K+Q|<2*pi/r. This mode truncation scheme is slightly different from the original choice
-	      |K|,|Q|<pi/r of Eq. (D4c) in Obreschkow et al. (2013). The line correlation is calculated either
-	      via an extact, deterministic algorithm, or via a stochstic algorithm (see option '-method').
-	   a: compute line correlation l(r) and the approximation l’(r) in the Edgeworth expansion
-	      without higher order (N>3) loop terms:
-	      l'(r) = (sqrt(pi)/2.0)**3*(r/L)^(9/2)*sum_KQ j0(|K-Q|r) <d(K)d(Q)d(-K-Q)>_t/sqrt(p(K)p(Q)p(-K-Q)),
-	      where p(K) = <d(K)d(K)>_t. This approximation is mainly used by the developers. This function is
+	      neighbor separation r. This function is calculated using a stochastic algorithm that randomly
+	      samples a fraction of the Fourier space. The size of this fraction can be specified by the
+	      optional argument '-accuracy'. Caution: unlike the other output options, this output has not
+	      been properly optimized and tested. It is mainly for developer use.
+	   b: compute bispectrum b(k,q) = <d(K)d(Q)d(-K-Q)>_t, where |K|=k and |Q|=q; the bispectrum is given
+	      for isoscales triangles (|K|=|Q|) as a function of the leg length |K|=|Q| and the angle between
+	      K and Q. To get, for example, the bispectrum for the case where K, Q, and -K-Q span an
+	      equilateral triangle, select the values with an angle(K,Q) of 120 deg in the output file. The
+	      bispectrum is calculated using a stochastic algorithm that randomly samples a fraction of the
+	      Fourier space. The size of this fraction can be specified by the optional argument '-accuracy'.
+	   l: compute line correlation, defined as l(r) = (r/L)^(9/2)*sum_KQ j0(|K-Q|r) e(K) e(Q) e(-K-Q),
+	      where e=FT(delta)/|F(delta)| and where the sum_KQ goes over all vectors K and Q in the
+	      discretized Fourier space, which satify |K|,|Q|,|K+Q|<2*pi/r. This mode truncation scheme is
+	      slightly different from the original choice |K|,|Q|<pi/r of Eq. (D4c) in Obreschkow et al.
+	      (2013). The line correlation is calculated either via an extact, deterministic algorithm, or via
+	      a stochstic algorithm (see option '-method').
+	   a: compute line correlation l(r) and the approximation l’(r) in the Edgeworth expansion without
+	      higher order (N>3) loop terms:
+	      l'(r)=(sqrt(pi)/2.0)**3*(r/L)^(9/2)*sum_KQ j0(|K-Q|r)<d(K)d(Q)d(-K-Q)>_t/sqrt(p(K)p(Q)p(-K-Q)),
+	      where p(K) = <d(K)d(K)>. This approximation is mainly used by the developers. This function is
 	      calculated using a stochastic algorithm that randomly samples a fraction of the Fourier space.
 	      The size of this fraction can be specified by the optional argument '-accuracy'.
-	   d: save density perturbation field delta(r) in binary format, mainly used for visualization purposes
+	   d: save density perturbation field delta(r) in binary format, mainly used for visualization
+	      purposes
 	   e: save phase field epsilon(r)=IFT(FT(delta(r))/|FT(delta(r))|) in binary format
 	
--method (default 2 for ncells<=128, 1 otherwise): only used with output 'l', must be either 1 or 2 and denotes
-       the type of algorithm used to evaluate the line correlation l(r):
-       1: Stochastic Monte Carlo algorithm. The number of Monte Carlo iterations is proportional to the optional
-          argument -accuracy >0 (default 1). The estimated error of the result, i.e. the expected 1-sigma deviation
-          from the result obtained in a complete sampling of all Fourier modes, is given in the 3rd column of the
-          output file. This error approximately scales as 1/sqrt(accuracy). The accuracy should be increased until
-          this error becomes numerically as small as required.
-       2: Deterministic algorithm, allowing a controlled sampling of the Fourier space. The fraction of Fourier
-          space sampled is set by the optional argument -accuracy (0..1). If -accuracy is 1 (the default value),
-          this algorithm returns the *exact* line correlation of the given density field. This algorithm is
-          computationally expensive and typically only used up to 200^3 cells, i.e. -ncell 200.
+-method (default 2 for ncells<=128, 1 otherwise): only used with output 'l', must be either 1 or 2 and
+       denotes the type of algorithm used to evaluate the line correlation l(r):
+       1: Stochastic Monte Carlo algorithm. The number of Monte Carlo iterations is proportional to the
+          optional argument -accuracy >0 (default 1). The estimated error of the result, i.e. the expected
+          1-sigma deviation from the result obtained in a complete sampling of all Fourier modes, is given
+          in the 3rd column of the output file. This error approximately scales as 1/sqrt(accuracy). The
+          accuracy should be increased until this error becomes numerically as small as required.
+       2: Deterministic algorithm, allowing a controlled sampling of the Fourier space. The fraction of
+          Fourier space sampled is set by the optional argument -accuracy (0..1). If -accuracy is 1 (the
+          default value), this algorithm returns the *exact* line correlation of the given density field.
+          This algorithm is computationally expensive and typically only used up to 200^3 cells, which
+          can be set using -ncell 200.
 
--interpolation (default 1): only used for input formats other than 1, specifies the method used to represent 3D
-          particle positions on the cartesian grid of ncells^3 cells. To avoid beating frequencies, the particles
-          are slightly translated, such that their mean distance from the cell centres is exactly 1/4 of the
-          cell spacing in all three dimensions. To suppress this shifting, add 'n' before the interpolation number,
-          e.g. '-interpolation n1'.
-       1: "nearest neighbor" method, i.e. each particle is simply put into the grid-cell it lies within. This
-          method conserves small-scale power very well, but can lead to strange artifacts in all correlation
-          functions if the particles positions are strongly correlated with the grid structure, e.g. at the
-          beginning of a simulation, where particles haven't evolved much
-       2: "top-hat smoothing": each particle is smoothed onto the grid using a cubic top-hat kernel with the width
-          of the grid cells. This method is more robust against potential errors caused by spurious correlations
-          between the particle positions and the grid structure, but it has the disadvantage of suppressing some
-          of the small-scale power. When choosing this method a warning is displayed and included in the output
-          files, stating the k-value above which the power is significantly affected.   
+-interpolation (default 1): only used for input formats other than 1, specifies the method used to
+          represent 3D particle positions on the cartesian grid of ncells^3 cells. To avoid beating
+          frequencies, the particles are slightly translated, such that their mean distance from the cell
+          centres is exactly 1/4 of the cell spacing in all three dimensions. To suppress this shifting,
+          add 'n' before the interpolation number, e.g. '-interpolation n1'.
+       1: "nearest neighbor" method, i.e. each particle is simply put into the grid-cell it lies within.
+          This method conserves small-scale power very well, but can lead to strange artifacts in all
+          correlation functions if the particles positions are strongly correlated with the grid
+          structure, e.g. at the beginning of a simulation, where particles haven't evolved much
+       2: "top-hat smoothing": each particle is smoothed onto the grid using a cubic top-hat kernel with
+          the width of the grid cells. This method is more robust against potential errors caused by
+          spurious correlations between the particle positions and the grid structure, but it has the
+          disadvantage of suppressing some of the small-scale power. When choosing this method a warning
+          is displayed and included in the output files, stating the k-value above which the power is
+          significantly affected.
           
--accuracy (default 1): used only with outputs 'b', 'y', 'l', 'a', sets the numerical accuracy of algorithms
+-accuracy (default 1): used only with outputs 'b', 'y', 'l', 'a', sets the numerical accuracy of
+       different algorithms:
        +  For '-output b' and '-output y' (stochastic algorithm of bispectrum and 3-point correlation),
           this value must be larger than 0. The higher the value, the more accurate the calculation.
-       +  For '-output l -method 1' (stochastic algorithm of line correlation), this value must be larger than 0.
-          The higher the value, the more accurate the calculation. The accuracy should be increased until the error
-          of l(r) in the third column of the output file *_l.txt is as small as desired.
-       +  For '-output l -method 2' (deterministic algorithm of line correlation), this value should be between 0
-          and 1 and denotes the fraction of Fourier space sampled by the algorithm. The higher the value, the more
-          accurate the calculation, but accuracies larger than 1 (more than full sampling) are meaningless and
-          automatically reset to 1.
+       +  For '-output l -method 1' (stochastic algorithm of line correlation), this value must be larger
+          than 0. The higher the value, the more accurate the calculation. The accuracy should be
+          increased until the error of l(r) in the third column of the output file *_l.txt is as small as
+          desired.
+       +  For '-output l -method 2' (deterministic algorithm of line correlation), this value should be
+          between 0 and 1 and denotes the fraction of Fourier space sampled by the algorithm. The higher
+          the value, the more accurate the calculation, but accuracies larger than 1 (more than full
+          sampling) are meaningless and automatically reset to 1.
           
--probability (default 1): only used if input data is provided as particle data (input formats other than 1),
-       in which case it specifies the Poisson subsampling of these particles. A probability value smaller than 1
-       means that each particle will only be considered with a probability equal to this value. Hence, the expected
-       number of particles kept for the computations is probability*(total number of particles). The seed of the
-       random sampling can be specified using the argument -seed.          
+-probability (default 1): only used if input data is provided as particle data (input type other than 1),
+       in which case it specifies the Poisson subsampling of these particles. A probability value
+       smaller than 1 means that each particle will only be considered with a probability equal to this
+       value. Hence, the expected number of particles kept for the computations is probability*(total
+       number of particles). The seed of the random sampling can be specified using the argument -seed.          
 
--seed (default 1): seed for random number generator used for the particle subsampling if a probability smaller than
-       1 is specified.
+-seed (default 1): seed for random number generator used for the particle subsampling if a probability
+       smaller than 1 is specified.
           
--overwrite (default y): if set to 'y', existing output files are overwriten, if set to 'n', they are only created if
-       they do not already exist
+-overwrite (default y): if set to 'y', existing output files are overwriten, if set to 'n', they are only
+       created if they do not already exist
        
--progress (default n): if set to 'y', the live progress is shown on screen, if set to 'n', the live progress is
-       suppressed. The latter (default) should be chosen if the screen output is written to a file.
+-progress (default n): if set to 'y', the live progress is shown on screen, if set to 'n', the live
+       progress is suppressed. The latter (default) should be chosen if the screen output is written to a
+       file.
 
 
 PACKAGED FILES
-====================================================================================================================
+==========================================================================================================
 
 + 'README' = this file
 
 + 'procorr.f90' is the main programme to be called to compute correlation functions
 
-+ 'module_correlation_functions.f90' is the module containing the functions to compute various correlation functions
-  of a density field in the snapshot format of N-body simulations run with Gadget 2.0.7.
++ 'module_correlation_functions.f90' is the module containing the functions to compute various correlation
+  functions of a density field in the snapshot format of N-body simulations run with Gadget 2.0.7.
   
-+ 'cdm_redshift0' output file from Gadget-2, containing the 3D-coordinates of 64^3 particles in a periodic box of
-  side-length 100 Mpc/h. The particle positions correspond to an evolved Universe (redshift z=0), with cosmological
-  parameters as indicated in Obreschkow et al. (2013). Simulation courtesy of Chris Power (2012).
++ 'cdm_redshift0' output file from Gadget-2, containing the 3D-coordinates of 64^3 particles in a periodic
+  box of side-length 100 Mpc/h. The particle positions correspond to an evolved Universe (redshift z=0),
+  with cosmological parameters as indicated in Obreschkow et al. (2013). Simulation courtesy of Chris
+  Power (2012).
   
 + 'makefile' contains the compiling instructions for the gfortran compiler.
 
