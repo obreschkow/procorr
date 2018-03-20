@@ -167,8 +167,8 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbos
          end do
     end do
     
-    ! NB: the computation of xi2 above is identical (within hardly measurable numerical errors) to
-    ! the following raw computation:
+    ! NB: the computation of xi2 above is mathematically *identical* (within hardly measurable numerical
+    ! errors) to the following raw computation:
     !   real :: dkr
     !   do i = 1,m
     !       r = scale(i)
