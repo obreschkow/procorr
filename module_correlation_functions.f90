@@ -22,7 +22,7 @@ subroutine set_opt_progress(opt_progress)
     show_progress = opt_progress
 end subroutine set_opt_progress
 
-subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normalization,opt_verbose)
+subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbose)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic 2-point correlation function of the 3D density field delta_r, defined on a
@@ -33,7 +33,6 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
     ! delta_r(:,:,:)        3D density perturbation field of dimension (n,n,n)
     !                       lower and upper bounds are irrelevant
     ! L                     [length unit of density field] side-length of box
-    ! opt_resolution        optional argument forcing an subsampling of length-scales r  (if>1)
     ! opt_normalization     [1,2,3] normalization type of power spectrum (1: Obreschkow, 2: Wolstenhulme, 3: CAMB)
     ! opt_verbose           whether to write output
     !
@@ -52,7 +51,6 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
     real,allocatable,intent(out)            :: xi2(:)               ! values of correlation function
     real,allocatable,intent(out),optional   :: scalek(:)            ! [1/unit of L] wave vector
     real,allocatable,intent(out),optional   :: p(:)                 ! isotropic power spectrum
-    real,optional,intent(in)                :: opt_resolution       ! optional sub-sampling factor of length-scale (must be >1)
     integer,intent(in),optional             :: opt_normalization    ! normalization type of power spectrum
     logical,intent(in),optional             :: opt_verbose
     real*4,allocatable                      :: ptotsqr(:)           ! total power over the modes of square length |k|^2
@@ -75,7 +73,6 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
     real                                    :: r                    ! correlation length (i.e. nearest-neighbor spacing)
     real                                    :: kr                   ! = |k|*|r|
     real*4,allocatable                      :: kptot(:)
-    real                                    :: resolution
     real,parameter                          :: pi = 3.14159265
     integer                                 :: normalization
     logical                                 :: verbose
@@ -87,11 +84,6 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
     end if
     
     ! handle options
-    if (present(opt_resolution)) then
-        resolution = max(1.0,opt_resolution)
-    else
-        resolution = 1
-    end if
     normalization = 3
     if (present(opt_normalization)) then
         if ((opt_normalization>=1).and.(opt_normalization<=3)) then
@@ -160,7 +152,7 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
     end do
 
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale,resolution,.true.)
+    call make_list_of_scale_lengths(n,L,scale,.true.)
     m = size(scale,1)
 
     ! integration of 2-point correlation
@@ -204,7 +196,7 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_resolution,opt_normaliza
 
 end subroutine compute_xi2
 
-subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
+subroutine compute_xi3(delta_r,L,scale,xi3,opt_accuracy)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic 3-point correlation function of the density field delta_r, defined on a
@@ -215,7 +207,6 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
     !                       lower and upper bounds are irrelevant
     ! L                     side-length of box
     ! opt_accuracy          optional argument for functype=1, forcing an increased accuracy of computation (if>1)
-    ! opt_resolution        optional argument forcing an subsampling of length-scales r  (if>1)
     !
     ! OUTPUT VARIABLES
     ! scale(:)              correlation scale r
@@ -230,7 +221,6 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
     real,intent(in)                 :: L                ! side-length of density field delta_r
     real,allocatable,intent(out)    :: scale(:)         ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: xi3(:)           ! values of correlation function
-    real,optional,intent(in)        :: opt_resolution   ! optional sub-sampling factor of length-scale (must be >1)
     real,optional,intent(in)        :: opt_accuracy     ! precision factor
     complex,allocatable             :: delta_k(:,:,:)   ! Phase-factors of Fourier modes of density field delta_r
     integer                         :: n                ! n^dim = number of elements in delta_k
@@ -255,7 +245,6 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
     integer                         :: ntheta           ! nb of angles angle(k,q) considered in the bi-spectrum
     integer                         :: ikmax            ! range of ik
     real                            :: accuracy
-    real                            :: resolution
     real,parameter                  :: pi = 3.14159265
 
     call tic('COMPUTE CORRELATION FUNCTION xi_3(r)')
@@ -273,11 +262,6 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
     else
         accuracy = 1
     end if
-    if (present(opt_resolution)) then
-        resolution = opt_resolution
-    else
-        resolution = 1
-    end if
     
     ! initialization
     niterations = nint(100*accuracy)
@@ -288,7 +272,7 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_resolution,opt_accuracy)
     ikmax = (n-1)/2
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale,resolution)
+    call make_list_of_scale_lengths(n,L,scale)
     m = size(scale,1)
     allocate(xi3(m))
     
@@ -568,7 +552,7 @@ subroutine compute_bispectrum(delta_r,L,bispectrum,angle_list,kleg_list,opt_accu
 
 end subroutine compute_bispectrum
 
-subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,opt_edgeworth)
+subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic line-correlation function l(r) of the 3D density field delta_r, defined on a
@@ -582,7 +566,6 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
     ! L                 side-length of box
     ! opt_accuracy      (default=100) this optional argument can be used to decrease (<100) or increase (>100) the
     !                   default number (100) of Monte Carlo iterations
-    ! opt_resolution    optional argument forcing a subsampling of length-scales r (if>1)
     ! opt_edgeworth     optional argument; if set to .true., the isotropic line-correlation function l(r), is
     !                   computed using the so-called Edgeworth exapansion without (N>3)-point correlations in
     !                   the loop corrections
@@ -600,7 +583,6 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
     real,allocatable,intent(out)    :: scale(:)             ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: value(:)             ! values of correlation function
     real,allocatable,intent(out)    :: error(:)             ! statistical uncertainties of correlation function
-    real,optional,intent(in)        :: opt_resolution       ! optional sub-sampling factor of length-scale (must be >1)
     real,optional,intent(in)        :: opt_accuracy         ! precision factor
     logical,optional,intent(in)     :: opt_edgeworth        ! decides whether l(r) is calculated in the Edgeworth approximation
     complex,allocatable             :: delta_k(:,:,:)       ! Fourier modes of density field delta_r
@@ -625,7 +607,6 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
     integer                         :: n_super_iterations
     real,allocatable                :: svalue(:,:)
     real                            :: accuracy
-    real                            :: resolution
     real                            :: standard_deviation
     real,parameter                  :: pi = 3.14159265
     integer                         :: tstop
@@ -671,11 +652,6 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
         accuracy = 1
         write(*,'(A,F8.1,A)') '+ Accuracy of Monte Carlo sampling = ',accuracy,' (set by automatically)'
     end if
-    if (present(opt_resolution)) then
-        resolution = max(1.0,opt_resolution)
-    else
-        resolution = 1
-    end if
     
     ! initialization
     n_iterations_max = 100000
@@ -684,7 +660,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
     dk = 2*pi/L
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale,resolution)
+    call make_list_of_scale_lengths(n,L,scale)
     m = size(scale,1)
     allocate(svalue(n_super_iterations,m),value(m),error(m))
         
@@ -836,7 +812,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_resolution,opt_accuracy,o
 
 end subroutine compute_lic
 
-subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_accuracy,opt_performance)
+subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_accuracy,opt_performance)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic line correlation function l(r) of the 3D density field delta_r, defined on a
@@ -850,7 +826,6 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_ac
     !                   lower and upper bounds are irrelevant
     ! L                 side-length of box
     ! opt_accuracy      optional argument completeness of Fourier space sampling 0..1
-    ! opt_resolution    optional argument forcing a subsampling of length-scales r (if>1)
     !
     ! OUTPUT VARIABLES
     ! scale(:)          [unit of L] correlation scale r
@@ -864,7 +839,6 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_ac
     real,intent(in)                 :: L                    ! side-length of density field delta_r
     real,allocatable,intent(out)    :: scale(:)             ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: value(:)             ! values of correlation function
-    real,optional,intent(in)        :: opt_resolution       ! optional sub-sampling factor of length-scale (must be >1)
     real,optional,intent(in)        :: opt_accuracy         ! completeness of Fourier space sampling 0..1
     integer*8,optional,intent(out)  :: opt_performance(2)   ! optional speed performance measurement
     complex,allocatable             :: delta_k(:,:,:)       ! Fourier modes of density field delta_r
@@ -890,7 +864,6 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_ac
     complex,pointer                 :: pepsil_q_pp1(:),pepsil_q_pn1(:),pepsil_p_pp1(:),pepsil_p_pn1(:)
     complex,pointer                 :: pepsil_q_pp2(:),pepsil_q_pn2(:),pepsil_p_pp2(:),pepsil_p_pn2(:)
     real,parameter                  :: pi = 3.14159265
-    real                            :: resolution
     integer*4,allocatable           :: ik3max(:,:),ik2max(:)
     real*4                          :: f
     real,allocatable                :: rnd(:,:,:),rsqr(:,:,:)
@@ -932,11 +905,6 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_ac
         completeness = 1
         write(*,'(A,F8.6,A)') '+ Fourier space completeness (accuracy) = ',completeness,' (set automatically)'
     end if
-    if (present(opt_resolution)) then
-        resolution = max(1.0,opt_resolution)
-    else
-        resolution = 1
-    end if
     
     ! initialization
     n = size(delta_r,1)
@@ -953,7 +921,7 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_resolution,opt_ac
     deallocate(delta_k)
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale,resolution)
+    call make_list_of_scale_lengths(n,L,scale)
     m = size(scale,1)
     if (scale(1)<2*L/real(n)) then
         write(*,*)
@@ -1713,29 +1681,27 @@ end subroutine make_density_perturbation_field_from_particle_file
 ! AUXILIARY SUBROUTINES
 ! =================================================================================================================
 
-subroutine make_list_of_scale_lengths(n,L,scale,resolution,to_cell_spacing)
+subroutine make_list_of_scale_lengths(n,L,scale,to_cell_spacing)
+
+    ! produces correlation lengths which are all multiples of dr,
+    ! as required by the periodic boundary conditions
 
     implicit none
     
     ! variable declaration
     integer,intent(in)              :: n                ! n^dim = number of elements in delta_k
     real,intent(in)                 :: L                ! side-length of density field delta_r
-    real,intent(in)                 :: resolution       ! >1 gives higher resolution
     real,allocatable,intent(out)    :: scale(:)         ! array with different correlation functions
     logical,intent(in),optional     :: to_cell_spacing  ! if true the smallest scale is set for 2-point correlation
     real                            :: dr               ! side-length of a grid cell of delta_r
     real,allocatable                :: rlist_tmp(:)     ! temporary list of correlation lengths
     integer                         :: m                ! number of correlation lengths
     integer                         :: ikmax
-    real                            :: r,res,ikreal
+    real                            :: r,ikreal
     real,parameter                  :: pi = 3.14159265
 
-    ! input handing
-    res = max(1.0,resolution)
-
-    ! make list of correlation lengths
     dr = L/real(n)
-    allocate(rlist_tmp(0:ceiling(n*real(resolution))))
+    allocate(rlist_tmp(0:n))
     rlist_tmp(0) = 1e10
     m = 0
     ikmax = n/2
@@ -1747,25 +1713,16 @@ subroutine make_list_of_scale_lengths(n,L,scale,resolution,to_cell_spacing)
     
     ikreal = 4
     do while (ikreal<=ikmax)
-        if (res==1) then
-            r = nint(n/ikreal)*dr
-        else
-            r = n/ikreal*dr
-        end if
+        r = nint(n/ikreal)*dr
         if ((r<rlist_tmp(m)).and.(r>=dr)) then
             m = m+1
             rlist_tmp(m) = r
         end if
-        ikreal = ikreal+1/res
+        ikreal = ikreal+1
     end do
     
     allocate(scale(m))
     scale(:) = rlist_tmp(m:1:-1)
-    
-    !allocate(scale(128))
-    !do m = 1,128
-    !  scale(m) = m
-    !end do
     
 end subroutine make_list_of_scale_lengths
 

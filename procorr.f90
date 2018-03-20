@@ -177,7 +177,7 @@ program procorr
         
         L = 0
         call make_density_perturbation_field_from_particle_file(trim(filename),4,2,-83.0,1,delta_r,L,1.0,1)
-        call compute_lic_deterministic(delta_r,L,scale,value,opt_resolution=1.0,opt_performance=performance)
+        call compute_lic_deterministic(delta_r,L,scale,value,opt_performance=performance)
         ! compare value to reference value ...
         ! write(*,*) value
         if (any(abs(value-value_ref)/value_ref>1e-3)) then
@@ -441,7 +441,7 @@ program procorr
     
     ! compute power spectrum / 2-pt correlation
     if ((opt_compute_p).or.(opt_compute_x)) then
-        call compute_xi2(delta_r,L,scale,xi,scalek,p,opt_resolution=1.0)
+        call compute_xi2(delta_r,L,scale,xi,scalek,p)
         if (opt_compute_p) then
             open(1,file=trim(filename)//'_p.txt',action='write',status='replace',form='formatted')
             call write_header('power spectrum','deterministic, exact',kwarning)
@@ -465,10 +465,10 @@ program procorr
     ! 3-pt correlation
     if (opt_compute_y) then
         if (opt_accuracy==0) then
-            call compute_xi3(delta_r,L,scale,xi,opt_resolution=1.0)
+            call compute_xi3(delta_r,L,scale,xi)
             write(str_acc,'(F8.1)') 1.0
         else
-            call compute_xi3(delta_r,L,scale,xi,opt_resolution=1.0,opt_accuracy=opt_accuracy)
+            call compute_xi3(delta_r,L,scale,xi,opt_accuracy=opt_accuracy)
             write(str_acc,'(F8.1)') opt_accuracy
         end if
         open(1,file=trim(filename)//'_y.txt',action='write',status='replace',form='formatted')
@@ -513,10 +513,10 @@ program procorr
         end if
         if (opt_method==1) then
             if (opt_accuracy==0) then
-                call compute_lic(delta_r,L,scale,value,error,opt_resolution=1.0)
+                call compute_lic(delta_r,L,scale,value,error)
                 write(str_acc,'(F8.1)') 1.0
             else
-                call compute_lic(delta_r,L,scale,value,error,opt_resolution=1.0,opt_accuracy=opt_accuracy)
+                call compute_lic(delta_r,L,scale,value,error,opt_accuracy=opt_accuracy)
                 write(str_acc,'(F8.1)') opt_accuracy
             end if
             open(1,file=trim(filename)//'_l.txt',action='write',status='replace',form='formatted')
@@ -529,9 +529,9 @@ program procorr
             close(1)
         else if (opt_method==2) then
             if (opt_accuracy==0) then
-                call compute_lic_deterministic(delta_r,L,scale,value,opt_resolution=1.0)
+                call compute_lic_deterministic(delta_r,L,scale,value)
             else
-                call compute_lic_deterministic(delta_r,L,scale,value,opt_resolution=1.0,opt_accuracy=opt_accuracy)
+                call compute_lic_deterministic(delta_r,L,scale,value,opt_accuracy=opt_accuracy)
             end if
             open(1,file=trim(filename)//'_l.txt',action='write',status='replace',form='formatted')
             if ((opt_accuracy==0).or.(opt_accuracy>=1)) then
@@ -551,10 +551,10 @@ program procorr
     ! compute special line correlation
     if (opt_compute_a) then
         if (opt_accuracy==0) then
-            call compute_lic(delta_r,L,scale,value_edgeworth,error_edgeworth,opt_resolution=1.0,opt_edgeworth=.true.)
+            call compute_lic(delta_r,L,scale,value_edgeworth,error_edgeworth,opt_edgeworth=.true.)
             write(str_acc,'(F8.1)') 1.0
         else
-            call compute_lic(delta_r,L,scale,value_edgeworth,error_edgeworth,opt_resolution=1.0,opt_accuracy=opt_accuracy,&
+            call compute_lic(delta_r,L,scale,value_edgeworth,error_edgeworth,opt_accuracy=opt_accuracy,&
             &opt_edgeworth=.true.)
             write(str_acc,'(F8.1)') opt_accuracy
         end if
