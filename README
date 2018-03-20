@@ -8,7 +8,10 @@ in Obreschkow et al. (ApJ 762, 2013) to measure cosmic filamentarity. The line c
 uses the modified mode truncation |K|,|Q|,|K+Q|<2*pi/r of Wolstenhulme et al. (ApJ 804, 2015) instead of
 |K|,|Q|<pi/r in Eq. (D4c) of Obreschkow et al. (2013).
 
-The code is written in Fortran 90 for the gfortran compiler and has been tested on gfortran versions 4.4.7 and 5.0.0. It does not require any library, in particular no FFTW. The -O3 -openmp flags are strongly recommended to accelerate the computation on multiple cores. The code comes with some optional visualization routines for the statistical programming language R, contained in the file Rfunctions.R.
+The code is written in Fortran 90 for the gfortran compiler and has been tested on gfortran versions 4.4.7
+and 5.0.0. It does not require any library, in particular no FFTW. The -O3 -openmp flags are strongly
+recommended to accelerate the computation on multiple cores. The code comes with some optional
+visualization routines for the statistical programming language R, contained in the file Rfunctions.R.
 
 Copyright Danail Obreschkow (danail.obreschkow@icrar.org), 2013-2018
 
