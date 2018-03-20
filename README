@@ -8,11 +8,12 @@ Obreschkow et al. (ApJ 762, 2013) to measure cosmic filamentarity. The line corr
 modified mode truncation |K|,|Q|,|K+Q|<2*pi/r of Wolstenhulme et al. (ApJ 804, 2015) instead of |K|,|Q|<pi/r in
 Eq. (D4c) of Obreschkow et al. (2013).
 
-The code is written in Fortran 90 for the gfortran compiler. It does not require any library, in particular no FFTW.
-The -O3 -openmp flags are strongly recommended to accelerate the computation on multiple cores. The code comes with
-some optional visualization routines for the statistical programming language R, contained in the file Rfunctions.R.
+The code is written in Fortran 90 for the gfortran compiler and has been tested extensively on gfortran versions
+4.4.7 and 5.0.0. It does not require any library, in particular no FFTW. The -O3 -openmp flags are strongly
+recommended to accelerate the computation on multiple cores. The code comes with some optional visualization
+routines for the statistical programming language R, contained in the file Rfunctions.R.
 
-Copyright Danail Obreschkow (danail.obreschkow@icrar.org), 2013-2017
+Copyright Danail Obreschkow (danail.obreschkow@icrar.org), 2013-2018
 
 
 
@@ -189,10 +190,10 @@ OPTIONS
           automatically reset to 1.
           
 -probability (default 1): only used if input data is provided as particle data (input formats other than 1),
-       in which case it specifies the Poisson subsampling of these particles. A probability value smaller than 1 means
-       that each particle will only be considered with a probability equal to this value. Hence, the expected number
-       of particles kept for the computations is probability*(total number of particles). The seed of the random
-       sampling can be specified using the argument -seed.          
+       in which case it specifies the Poisson subsampling of these particles. A probability value smaller than 1
+       means that each particle will only be considered with a probability equal to this value. Hence, the expected
+       number of particles kept for the computations is probability*(total number of particles). The seed of the
+       random sampling can be specified using the argument -seed.          
 
 -seed (default 1): seed for random number generator used for the particle subsampling if a probability smaller than
        1 is specified.
