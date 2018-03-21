@@ -81,7 +81,7 @@ show.field <- function(field, title = NULL,
   rasterImage(rgb,0,0,1,1)
 }
 
-custom.plot <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1, xlab = '', ylab = '', title = '') {
+custom.plot <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1, xlab = '', ylab = '', title = '', output = FALSE) {
   dat = read.table(filename,skip=7,sep=',')
   x = dat[,1]
   y = dat[,2]*yscale
@@ -96,25 +96,32 @@ custom.plot <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'blac
   list = x>0 & y>0
   lines(x[list],y[list],col=col)
   points(x[list],y[list],pch=20,col=col)
+  if (output) return(list(x=x,y=y))
 }
 
 show.powerspectrum <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1,
                                xlab = 'Wavevector k [(simulation units)'^'-1'~']',
-                               ylab = 'Power spectrum p(k)') {
-  custom.plot(paste0(filename,'_p.txt'), xlim, ylim, add, col, yscale = yscale, title = 'Power spectrum',
-                     xlab=xlab, ylab=ylab)
+                               ylab = 'Power spectrum p(k)',
+                               output = FALSE) {
+  out = custom.plot(paste0(filename,'_p.txt'), xlim, ylim, add, col, yscale = yscale, title = 'Power spectrum',
+                     xlab=xlab, ylab=ylab, output)
+  if (output) return(out)
 }
 
 show.autocorrelation <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1,
                                  xlab = 'Correlation scale r [simulation units]',
-                                 ylab = '2-point correlation xi(r)') {
-  custom.plot(paste0(filename,'_x.txt'), xlim, ylim, add, col, yscale = yscale, title = '2-point correlation',
-                     xlab=xlab, ylab=ylab)
+                                 ylab = '2-point correlation xi(r)',
+                                 output = FALSE) {
+  out = custom.plot(paste0(filename,'_x.txt'), xlim, ylim, add, col, yscale = yscale, title = '2-point correlation',
+                     xlab=xlab, ylab=ylab, output)
+  if (output) return(out)
 }
 
 show.linecorrelation <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1,
                                  xlab = 'Correlation scale r [simulation units]',
-                                 ylab = 'Line correlation l(r)') {
-  custom.plot(paste0(filename,'_l.txt'), xlim, ylim, add, col, yscale = yscale, title = 'Line correlation',
-                     xlab=xlab, ylab=ylab)
+                                 ylab = 'Line correlation l(r)',
+                                 output = FALSE) {
+  out = custom.plot(paste0(filename,'_l.txt'), xlim, ylim, add, col, yscale = yscale, title = 'Line correlation',
+                     xlab=xlab, ylab=ylab, output)
+  if (output) return(out)
 }
