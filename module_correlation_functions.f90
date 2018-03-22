@@ -4,7 +4,7 @@ module module_correlation_functions
 ! GLOBAL VARIABLES
 ! =================================================================================================================
 
-character(*),parameter  :: module_version = '1.14'
+character(*),parameter  :: module_version = '1.15'
 integer,allocatable     :: tstart(:)            ! variables for measuring the computation time
 integer                 :: tindex,trate         ! variables for measuring the computation time
 logical                 :: time_measurement     ! variables for measuring the computation time
@@ -1387,6 +1387,9 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
     rho = 0
     npartnew_tot = 0
     
+    ! set random seed for subsampling
+    if (subsample_probability<1.0) call set_seed(subsample_seed)
+    
     do ifile = 1,nfiles
     
         ! load particles
@@ -1402,7 +1405,6 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
         
         ! subsampling
         if (subsample_probability<1.0) then
-            call set_seed(subsample_seed)
             if (allocated(rnd)) deallocate(rnd)
             allocate(rnd(npart))
             call random_number(rnd)

@@ -4,7 +4,7 @@ program procorr
     
     implicit none
     
-    character(*),parameter  :: version = '1.14'
+    character(*),parameter  :: version = '1.15'
     character(len=255)      :: filename,opt_type,opt_value
     logical                 :: opt_compute_p    ! isotropic power spectrum in CAMB normalization
     logical                 :: opt_compute_x    ! isotropic 2-point auto correlation
