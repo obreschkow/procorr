@@ -38,8 +38,10 @@ program procorr
     real,allocatable        :: epsil_r(:,:,:)
     complex,allocatable     :: delta_k(:,:,:)
     complex,allocatable     :: epsil_k(:,:,:)
-    real,parameter          :: value_ref(13) = (/1.46115053,1.36806214,1.01544416,0.725860417,0.563088596,0.462437660,0.365323305, &
-                                                & 0.275995672,0.257817090,0.186858490,0.142859638,0.128057718,8.73243734E-02/)
+    real,parameter          :: value_ref(20) = (/1.46115053,1.36806214,1.01544416,0.725860417,0.563088596,0.462437660, &
+                                                & 0.365323305,0.275995672,0.257817090,0.212488532,0.186858490,0.153156623, &
+                                                & 0.142859638,0.150753573,0.145404756,0.128057718,6.74296021E-02, &
+                                                & 7.60115758E-02,8.80401731E-02,8.73243734E-02/)                      
     integer*8               :: performance(2)
     character(len=8)        :: str_acc
     character(len=100)      :: rwarning,kwarning
@@ -181,8 +183,8 @@ program procorr
         call make_density_perturbation_field_from_particle_file(trim(filename),4,2,-83.0,1,delta_r,L,1.0,1)
         call compute_lic_deterministic(delta_r,L,scale,value,opt_rmin,opt_performance=performance)
         ! compare value to reference value ...
-        ! write(*,*) value
-        if (any(abs(value-value_ref)/value_ref>1e-3)) then
+        if (any(abs(value(1:20)-value_ref)/value_ref>1e-3)) then
+            write(*,*) value
             write(*,'(A)') 'ERROR: TEST FAILED. PLEASE CONTACT danail.obreschkow@icrar.org FOR SUPPORT.'
         else
             write(*,'(A)') 'TEST SUCCESSFUL.'
