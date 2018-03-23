@@ -4,7 +4,7 @@ module module_correlation_functions
 ! GLOBAL VARIABLES
 ! =================================================================================================================
 
-character(*),parameter  :: module_version = '1.16'
+character(*),parameter  :: module_version = '1.17'
 integer,allocatable     :: tstart(:)            ! variables for measuring the computation time
 integer                 :: tindex,trate         ! variables for measuring the computation time
 logical                 :: time_measurement     ! variables for measuring the computation time
@@ -1719,51 +1719,6 @@ subroutine make_list_of_scale_lengths(n,L,rmin,scale)
     scale(:) = tmp(1:j)
     
 end subroutine make_list_of_scale_lengths
-
-subroutine make_list_of_scale_lengths_old(n,L,scale,to_cell_spacing)
-
-    ! used in versions up to 1.15
-    ! produces correlation lengths which are all multiples of dr=L/n
-
-    implicit none
-    
-    ! variable declaration
-    integer,intent(in)              :: n                ! n^dim = number of elements in delta_k
-    real,intent(in)                 :: L                ! side-length of density field delta_r
-    real,allocatable,intent(out)    :: scale(:)         ! array with different correlation functions
-    logical,intent(in),optional     :: to_cell_spacing  ! if true the smallest scale is set for 2-point correlation
-    real                            :: dr               ! side-length of a grid cell of delta_r
-    real,allocatable                :: rlist_tmp(:)     ! temporary list of correlation lengths
-    integer                         :: m                ! number of correlation lengths
-    integer                         :: ikmax
-    real                            :: r,ikreal
-    real,parameter                  :: pi = 3.14159265
-
-    dr = L/real(n)
-    allocate(rlist_tmp(0:n))
-    rlist_tmp(0) = 1e10
-    m = 0
-    ikmax = n/2
-    if (present(to_cell_spacing)) then
-        if (to_cell_spacing) then
-            ikmax = n
-        end if
-    end if
-    
-    ikreal = 4
-    do while (ikreal<=ikmax)
-        r = nint(n/ikreal)*dr
-        if ((r<rlist_tmp(m)).and.(r>=dr).and.(r>=10)) then
-            m = m+1
-            rlist_tmp(m) = r
-        end if
-        ikreal = ikreal+1
-    end do
-    
-    allocate(scale(m))
-    scale(:) = rlist_tmp(m:1:-1)
-    
-end subroutine make_list_of_scale_lengths_old
 
 subroutine compute_phase_factors(delta_k,epsil_k)
 

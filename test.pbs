@@ -1,3 +1,0 @@
-#!/bin/bash
-#PBS -l walltime=0:10:00
-/home/dobreschkow/ProCorr/procorr -test > /home/dobreschkow/ProCorr/test.out 2> /home/dobreschkow/ProCorr/test.err

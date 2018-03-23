@@ -4,7 +4,7 @@ program procorr
     
     implicit none
     
-    character(*),parameter  :: version = '1.16'
+    character(*),parameter  :: version = '1.17'
     character(len=255)      :: filename,opt_type,opt_value
     logical                 :: opt_compute_p    ! isotropic power spectrum in CAMB normalization
     logical                 :: opt_compute_x    ! isotropic 2-point auto correlation
@@ -80,7 +80,7 @@ program procorr
     opt_compute_a = .false.
     opt_compute_d = .false.
     opt_compute_e = .false.
-    opt_input = 2
+    opt_input = 4
     opt_sidelength = 0
     opt_species = 2
     opt_ncells = 0 ! means automatic cell size
