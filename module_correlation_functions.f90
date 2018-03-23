@@ -4,7 +4,7 @@ module module_correlation_functions
 ! GLOBAL VARIABLES
 ! =================================================================================================================
 
-character(*),parameter  :: module_version = '1.15'
+character(*),parameter  :: module_version = '1.16'
 integer,allocatable     :: tstart(:)            ! variables for measuring the computation time
 integer                 :: tindex,trate         ! variables for measuring the computation time
 logical                 :: time_measurement     ! variables for measuring the computation time
@@ -22,7 +22,7 @@ subroutine set_opt_progress(opt_progress)
     show_progress = opt_progress
 end subroutine set_opt_progress
 
-subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbose)
+subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,scale_min,opt_normalization,opt_verbose)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic 2-point correlation function of the 3D density field delta_r, defined on a
@@ -51,6 +51,7 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbos
     real,allocatable,intent(out)            :: xi2(:)               ! values of correlation function
     real,allocatable,intent(out),optional   :: scalek(:)            ! [1/unit of L] wave vector
     real,allocatable,intent(out),optional   :: p(:)                 ! isotropic power spectrum
+    real,intent(in)                         :: scale_min
     integer,intent(in),optional             :: opt_normalization    ! normalization type of power spectrum
     logical,intent(in),optional             :: opt_verbose
     real*4,allocatable                      :: ptotsqr(:)           ! total power over the modes of square length |k|^2
@@ -152,7 +153,7 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbos
     end do
 
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale,.true.)
+    call make_list_of_scale_lengths(n,L,scale_min,scale)
     m = size(scale,1)
 
     ! integration of 2-point correlation
@@ -196,7 +197,7 @@ subroutine compute_xi2(delta_r,L,scale,xi2,scalek,p,opt_normalization,opt_verbos
 
 end subroutine compute_xi2
 
-subroutine compute_xi3(delta_r,L,scale,xi3,opt_accuracy)
+subroutine compute_xi3(delta_r,L,scale,xi3,scale_min,opt_accuracy)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic 3-point correlation function of the density field delta_r, defined on a
@@ -221,6 +222,7 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_accuracy)
     real,intent(in)                 :: L                ! side-length of density field delta_r
     real,allocatable,intent(out)    :: scale(:)         ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: xi3(:)           ! values of correlation function
+    real,intent(in)                 :: scale_min         ! minimum scale on which to evaluate the function
     real,optional,intent(in)        :: opt_accuracy     ! precision factor
     complex,allocatable             :: delta_k(:,:,:)   ! Phase-factors of Fourier modes of density field delta_r
     integer                         :: n                ! n^dim = number of elements in delta_k
@@ -272,7 +274,7 @@ subroutine compute_xi3(delta_r,L,scale,xi3,opt_accuracy)
     ikmax = (n-1)/2
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale)
+    call make_list_of_scale_lengths(n,L,max(L/real(n)*2.0,scale_min),scale)
     m = size(scale,1)
     allocate(xi3(m))
     
@@ -552,7 +554,7 @@ subroutine compute_bispectrum(delta_r,L,bispectrum,angle_list,kleg_list,opt_accu
 
 end subroutine compute_bispectrum
 
-subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
+subroutine compute_lic(delta_r,L,scale,value,error,scale_min,opt_accuracy,opt_edgeworth)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic line-correlation function l(r) of the 3D density field delta_r, defined on a
@@ -583,6 +585,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
     real,allocatable,intent(out)    :: scale(:)             ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: value(:)             ! values of correlation function
     real,allocatable,intent(out)    :: error(:)             ! statistical uncertainties of correlation function
+    real,intent(in)                 :: scale_min             ! minimum scale
     real,optional,intent(in)        :: opt_accuracy         ! precision factor
     logical,optional,intent(in)     :: opt_edgeworth        ! decides whether l(r) is calculated in the Edgeworth approximation
     complex,allocatable             :: delta_k(:,:,:)       ! Fourier modes of density field delta_r
@@ -660,7 +663,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
     dk = 2*pi/L
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale)
+    call make_list_of_scale_lengths(n,L,max(L/real(n)*2.0,scale_min),scale)
     m = size(scale,1)
     allocate(svalue(n_super_iterations,m),value(m),error(m))
         
@@ -671,7 +674,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
     if (edgeworth) then
         call tic('compute powerspectrum')
         iktop = (n-1)/2
-        call compute_xi2(delta_r,L,scaler,xi2,scalek,p,opt_normalization=1,opt_verbose=.false.)
+        call compute_xi2(delta_r,L,scaler,xi2,scalek,p,0.0,opt_normalization=1,opt_verbose=.false.)
         allocate(sqrtp(0:(iktop+2)**2))
         index = 1
         do i = 0,ubound(sqrtp,1)
@@ -812,7 +815,7 @@ subroutine compute_lic(delta_r,L,scale,value,error,opt_accuracy,opt_edgeworth)
 
 end subroutine compute_lic
 
-subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_accuracy,opt_performance)
+subroutine compute_lic_deterministic(delta_r,L,scale,value,scale_min,opt_accuracy,opt_performance)
 
     ! BRIEF EXPLANATION
     ! Computes the isotropic line correlation function l(r) of the 3D density field delta_r, defined on a
@@ -839,6 +842,7 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_accuracy,opt_perf
     real,intent(in)                 :: L                    ! side-length of density field delta_r
     real,allocatable,intent(out)    :: scale(:)             ! list of scale lengths of correlation function
     real,allocatable,intent(out)    :: value(:)             ! values of correlation function
+    real,intent(in)                 :: scale_min             ! minimum scale
     real,optional,intent(in)        :: opt_accuracy         ! completeness of Fourier space sampling 0..1
     integer*8,optional,intent(out)  :: opt_performance(2)   ! optional speed performance measurement
     complex,allocatable             :: delta_k(:,:,:)       ! Fourier modes of density field delta_r
@@ -921,7 +925,7 @@ subroutine compute_lic_deterministic(delta_r,L,scale,value,opt_accuracy,opt_perf
     deallocate(delta_k)
     
     ! make list of scale lengths
-    call make_list_of_scale_lengths(n,L,scale)
+    call make_list_of_scale_lengths(n,L,max(L/real(n)*2.0,scale_min),scale)
     m = size(scale,1)
     if (scale(1)<2*L/real(n)) then
         write(*,*)
@@ -1683,10 +1687,43 @@ end subroutine make_density_perturbation_field_from_particle_file
 ! AUXILIARY SUBROUTINES
 ! =================================================================================================================
 
-subroutine make_list_of_scale_lengths(n,L,scale,to_cell_spacing)
+subroutine make_list_of_scale_lengths(n,L,rmin,scale)
 
-    ! produces correlation lengths which are all multiples of dr,
-    ! as required by the periodic boundary conditions
+    ! produces correlation lengths which are all multiples of dr=L/n
+
+    implicit none
+    
+    ! variable declaration
+    integer,intent(in)              :: n                ! n^dim = number of elements in delta_k
+    real,intent(in)                 :: L                ! side-length of density field delta_r
+    real,intent(in)                 :: rmin             ! minimal scale requested
+    real,allocatable,intent(out)    :: scale(:)         ! array with different correlation functions
+    real,allocatable                :: tmp(:)
+    integer                         :: i,j,m
+    real                            :: r,dr
+
+    m = floor(real(n)/2)
+    allocate(tmp(m))
+    dr = L/real(n)
+    
+    j = 0
+    do i = 1,m
+        r = i*dr
+        if (r>=rmin) then
+            j = j+1
+            tmp(j) = r
+        end if
+    end do
+    
+    allocate(scale(j))
+    scale(:) = tmp(1:j)
+    
+end subroutine make_list_of_scale_lengths
+
+subroutine make_list_of_scale_lengths_old(n,L,scale,to_cell_spacing)
+
+    ! used in versions up to 1.15
+    ! produces correlation lengths which are all multiples of dr=L/n
 
     implicit none
     
@@ -1716,7 +1753,7 @@ subroutine make_list_of_scale_lengths(n,L,scale,to_cell_spacing)
     ikreal = 4
     do while (ikreal<=ikmax)
         r = nint(n/ikreal)*dr
-        if ((r<rlist_tmp(m)).and.(r>=dr)) then
+        if ((r<rlist_tmp(m)).and.(r>=dr).and.(r>=10)) then
             m = m+1
             rlist_tmp(m) = r
         end if
@@ -1726,7 +1763,7 @@ subroutine make_list_of_scale_lengths(n,L,scale,to_cell_spacing)
     allocate(scale(m))
     scale(:) = rlist_tmp(m:1:-1)
     
-end subroutine make_list_of_scale_lengths
+end subroutine make_list_of_scale_lengths_old
 
 subroutine compute_phase_factors(delta_k,epsil_k)
 
