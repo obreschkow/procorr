@@ -52,7 +52,10 @@ GETTING STARTED: DOWNLOAD, COMPILE AND RUN THE CODE
 ==========================================================================================================
 
 1) Install gfortran (tested for versions 4.7, 4.8 and 5.0).
-2) Download and unzip ProCorr
+2) Download ProCorr
+   > git clone https://github.com/obreschkow/stingray
+3) Got to ProCorr directory
+   > cd procorr
 3) Open a terminal, navigate to the ProCorr directory and compile the code by typing
    > make
    In case of compiler issues modify the makefile.
