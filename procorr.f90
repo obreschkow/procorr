@@ -4,7 +4,7 @@ program procorr
     
     implicit none
     
-    character(*),parameter  :: version = '1.17'
+    character(*),parameter  :: version = '1.18'
     character(len=255)      :: filename,opt_type,opt_value
     logical                 :: opt_compute_p    ! isotropic power spectrum in CAMB normalization
     logical                 :: opt_compute_x    ! isotropic 2-point auto correlation
@@ -217,8 +217,8 @@ program procorr
                         read(opt_value,*) opt_input
                     end if
                     if (.not.((opt_input==1).or.(abs(opt_input)==2).or.&
-                    &(abs(opt_input)==3).or.(abs(opt_input)==4).or.(opt_input==5))) then
-                        write(*,'(A)') 'ERROR: input must be 1, 2, 3, 4, 5, m2, m3, m4.'
+                    &(abs(opt_input)==3).or.(abs(opt_input)==4).or.(opt_input==5).or.(opt_input==6))) then
+                        write(*,'(A)') 'ERROR: input must be 1, 2, 3, 4, 5, 6, m2, m3, m4.'
                         stop
                     end if
                 case ('-sidelength')

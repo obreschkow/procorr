@@ -42,10 +42,11 @@ v1.11 04/2017: small bug fix in the output of line correlation for interpolation
                improved R-functions
 v1.12 04/2017: small bug fix when reading large particle files
 v1.13 04/2017: added input 5, minor bug fix with -test
-v1.14 20/2018: added arguments -probability and -seed for Poisson subsampling of particles
-v1.15 22/2018: fixed random seed, optimization ('resolution' argument removed from correlation functions)
-v1.16 23/2018: added argument -rmin and changed the computation of the scales to be returned
-v1.17 23/2018: change default input to 4 (Gadget format)
+v1.14 02/2018: added arguments -probability and -seed for Poisson subsampling of particles
+v1.15 02/2018: fixed random seed, optimization ('resolution' argument removed from correlation functions)
+v1.16 03/2018: added argument -rmin and changed the computation of the scales to be returned
+v1.17 03/2018: change default input to 4 (Gadget format)
+v1.18 02/2019: add input format 6
 
 
 GETTING STARTED: DOWNLOAD, COMPILE AND RUN THE CODE
@@ -106,6 +107,7 @@ OPTIONS
         4:  3D particle positions in the standard Gadget-2 format. A particle species can be selected
             using the -species argument (see below)
         5:  3D particle positions in surfsuite format
+        6:  3D particle positions in Gadget-2 stream format, used e.g. by SURFS.
         m2: same as (2), but includes mass-weights: x1,y1,z1,m1; x2,y2,z2,m2; ...; xn,yn,zn,mn, i.e.
             the file size is 4*4*n bytes
         m3: same as (m2), but using ascii format

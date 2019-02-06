@@ -4,7 +4,7 @@ module module_correlation_functions
 ! GLOBAL VARIABLES
 ! =================================================================================================================
 
-character(*),parameter  :: module_version = '1.17'
+character(*),parameter  :: module_version = '1.18'
 integer,allocatable     :: tstart(:)            ! variables for measuring the computation time
 integer                 :: tindex,trate         ! variables for measuring the computation time
 logical                 :: time_measurement     ! variables for measuring the computation time
@@ -1511,6 +1511,7 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
         integer*4               :: bytes_per_particle
         integer*8               :: empty8
         real*4                  :: empty4
+        integer*4               :: empty
         real*8                  :: x8,y8,z8 
         logical                 :: option_8byte = .false.
         
@@ -1588,7 +1589,7 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
             close(1)
             
         else if (abs(filetype) == 4) then ! Gadget file binary
-    
+        
             ! determine number of particles
             open(1,file=trim(filename),action='read',form='unformatted',status='old')
             read(1) np    ! np is a 6 element array of integers*4
@@ -1606,6 +1607,7 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
             else
                 mass = 1.0
             end if
+            
             close(1)
             
         else if (filetype == 5) then ! Simple binary file
@@ -1626,6 +1628,34 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
             open(1,file=trim(filename),action='read',form='unformatted',status='old',access='stream')
             read(1) (empty8,empty4,x(i),y(i),z(i),empty4,empty4,empty4,i=1,npart)
             mass = 1.0
+            close(1)
+            
+        else if (abs(filetype) == 6) then ! Gadget file binary stream format (used for large gadget files of SURFS)
+        
+            ! read header
+            open(1,file=trim(filename),action='read',form='unformatted',status='old',access='stream')
+            read(1) empty
+            read(1) np
+            npart = np(species)
+            read(1) (empty,i=2,60)
+   
+            ! read positions
+            read(1) empty
+            if (sum(np(1:species-1))>0) then
+               read(1) (xempty,yempty,zempty,i=1,sum(np(1:species-1)))
+            end if
+            allocate(x(npart),y(npart),z(npart),mass(npart))
+            read(1) (x(i),y(i),z(i),i=1,npart)
+            read(1) empty
+           
+            ! set masses
+            if (loadmasses) then
+               write(*,'(A)') 'Gadget steam cannot handle masses.'
+               stop
+            else
+               mass = 1.0
+            end if
+            
             close(1)
             
         end if
