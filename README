@@ -46,7 +46,7 @@ v1.14 02/2018: added arguments -probability and -seed for Poisson subsampling of
 v1.15 02/2018: fixed random seed, optimization ('resolution' argument removed from correlation functions)
 v1.16 03/2018: added argument -rmin and changed the computation of the scales to be returned
 v1.17 03/2018: change default input to 4 (Gadget format)
-v1.18 02/2019: add input format 6
+v1.18 02/2019: add input format 6 and internal option for redshift-space distortions
 
 
 GETTING STARTED: DOWNLOAD, COMPILE AND RUN THE CODE
@@ -102,7 +102,7 @@ OPTIONS
         1:  3D density field, represented on a regular n-by-n-by-n grid, where each cell is specified by a
             4 or 8 byte real number (=> total file length is 4*n^3 or 8*n^3 bytes)
         2:  3D particle positions, ordered as x1,y1,z1; x2,y2,z2; ...; xn,yn,zn, where each coordinate is
-            specified by a 4-byte real number (=> total file size is 4*3*n bytes)
+            specified by a 4-byte real number in a binary file (=> total file size is 4*3*n bytes)
         3:  same as (2), but using ascii format
         4:  3D particle positions in the standard Gadget-2 format. A particle species can be selected
             using the -species argument (see below)

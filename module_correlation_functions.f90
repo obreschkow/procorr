@@ -1504,6 +1504,7 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
         ! npart = number of particles
     
         implicit none
+        logical,parameter       :: make_redshift_space_distortion = .false.
         character(*),intent(in) :: filename
         integer*4,intent(in)    :: filetype
         logical*4               :: loadmasses
@@ -1514,6 +1515,7 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
         integer*4               :: empty
         real*8                  :: x8,y8,z8 
         logical                 :: option_8byte = .false.
+        real*4,allocatable      :: vz(:)
         
         if (allocated(x)) deallocate(x)
         if (allocated(y)) deallocate(y)
@@ -1644,11 +1646,25 @@ subroutine make_density_perturbation_field_from_particle_file(filename,filetype,
             if (sum(np(1:species-1))>0) then
                read(1) (xempty,yempty,zempty,i=1,sum(np(1:species-1)))
             end if
-            allocate(x(npart),y(npart),z(npart),mass(npart))
+            allocate(x(npart),y(npart),z(npart))
             read(1) (x(i),y(i),z(i),i=1,npart)
             read(1) empty
+            
+            if (make_redshift_space_distortion) then
+            
+               ! read velocities
+               allocate(vz(npart))
+               read(1) empty
+               read(1) (empty4,empty4,vz(i),i=1,npart)
+               read(1) empty
+            
+               ! redshift-space distortion
+               z = modulo(z+vz*0.01,900.0) ! note that vz*0.01 is the comoving redshift space distortion in Mpc/h
+               
+            end if
            
             ! set masses
+            allocate(mass(npart))
             if (loadmasses) then
                write(*,'(A)') 'Gadget steam cannot handle masses.'
                stop

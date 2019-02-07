@@ -49,7 +49,8 @@ read.box <- function(filename) {
 show.field <- function(field, title = NULL,
                        dimension = 1, # dimension perpendicular to the screen
                        thickness = c(0.4,0.6), # thickness of slice in coordinates normalized to (0,1)
-                       contrast = 1.0, gamma = 0.5, offset = 0.0, show.positive.negative = T) {
+                       contrast = 1.0, gamma = 0.5, offset = 0.0, show.positive.negative = T,
+                       export_filename = NA) {
   n = dim(field)[1]
   range = seq(max(1,round(thickness[1]*n)),min(n,round(thickness[2]*n)))
   if (dimension==1) {
@@ -79,6 +80,10 @@ show.field <- function(field, title = NULL,
     }
   }
   rasterImage(rgb,0,0,1,1)
+  if (!is.na(export_filename)) {
+    require(png)
+    writePNG(rgb,export_filename)
+  }
 }
 
 custom.plot <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1, xlab = '', ylab = '', title = '', output = FALSE) {
