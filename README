@@ -117,10 +117,10 @@ OPTIONS
         (i.e. without the ".#") Each individual file must have no more than 2^31-1 = 2147483647, i.e.
         1290^3, particles.
 
--species (default 2): species of Gadget SPH particles to be analyized, only used for input=4
+-species (default 2): species of Gadget SPH particles to be analyized, only used for input=4,6
 
 -ncells (default=512 or number of particles per dimension, whichever is smaller): only used if
-       input=2,3,4, number of cells aside in the regular grid used to discretize the simulation box.
+       input>1 number of cells aside in the regular grid used to discretize the simulation box.
        Higher values of ncells allow to resolve smaller structures, meaning that real space correlation
        functions will be computed to smaller values r and powerspectra and bispectra will be computed to
        larger modes. However, generally it does not make sense to chose ncells larger than the number of

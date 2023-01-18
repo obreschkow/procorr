@@ -49,8 +49,10 @@ read.box <- function(filename) {
 show.field <- function(field, title = NULL,
                        dimension = 1, # dimension perpendicular to the screen
                        thickness = c(0.4,0.6), # thickness of slice in coordinates normalized to (0,1)
+                       auto.rescale = T,
                        contrast = 1.0, gamma = 0.5, offset = 0.0, show.positive.negative = T,
-                       export_filename = NA) {
+                       export_filename = NA,
+                       show.figure = T) {
   n = dim(field)[1]
   range = seq(max(1,round(thickness[1]*n)),min(n,round(thickness[2]*n)))
   if (dimension==1) {
@@ -60,7 +62,12 @@ show.field <- function(field, title = NULL,
   } else if (dimension==3) {
     imgp = apply(field[,,range],c(1,2),mean)
   }
-  imgp = (imgp-mean(field))/sd(imgp)*contrast/2+offset
+  if (auto.rescale) {
+    imgp = (imgp-mean(field))*contrast/2/sd(img)+offset
+  } else {
+    imgp = imgp*contrast+offset
+  }
+  
   imgn = -imgp
   imgp[imgp<0] = 0
   imgp[imgp>1] = 1
@@ -68,8 +75,6 @@ show.field <- function(field, title = NULL,
   imgn[imgn>1] = 1
   imgp = imgp^gamma
   imgn = imgn^gamma
-  plot(0,0,type='n',xlim=c(0,1),ylim=c(0,1),xlab='',ylab='',xaxs='i',yaxs='i',xaxt='n',yaxt='n',asp=1,bty='n')
-  title(title)
   rgb = array(0,c(n,n,3))
   if (show.positive.negative) {
     rgb[,,2] = imgp
@@ -79,11 +84,16 @@ show.field <- function(field, title = NULL,
       rgb[,,i] = imgp
     }
   }
-  rasterImage(rgb,0,0,1,1)
+  if (show.figure) {
+    plot(0,0,type='n',xlim=c(0,1),ylim=c(0,1),xlab='',ylab='',xaxs='i',yaxs='i',xaxt='n',yaxt='n',asp=1,bty='n')
+    title(title)
+    rasterImage(rgb,0,0,1,1)
+  }
   if (!is.na(export_filename)) {
     require(png)
     writePNG(rgb,export_filename)
   }
+  invisible(rgb)
 }
 
 custom.plot <- function(filename, xlim = NULL, ylim = NULL, add = F, col = 'black', yscale = 1, xlab = '', ylab = '', title = '', output = FALSE) {

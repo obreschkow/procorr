@@ -64,7 +64,7 @@ program procorr
     call get_command_argument(0,me) 
     scanVal = scan (me, '/', back) 
     if (scanVal .gt. 0) then 
-       mydir=me(2:scanVal) 
+       mydir=me(2:scanVal)//' '
     else 
        call getcwd(mydir)    
     endif
